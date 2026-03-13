@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Available Tutors</title>
+</head>
+
+<body>
+
+<h2>Available Tutors</h2>
+
+{% for tutor in tutors %}
+
+<form action="/book" method="POST">
+
+<input type="hidden" name="tutor" value="{{tutor.name}}">
+<input type="hidden" name="subject" value="{{tutor.subject}}">
+
+<label>Your Name</label>
+<input type="text" name="student" required>
+
+<p>
+Tutor: {{tutor.name}} |
+Subject: {{tutor.subject}}
+</p>
+
+<button type="submit">Book Tutor</button>
+
+</form>
+
+<hr>
+
+{% endfor %}
+
+</body>
+
+</html>
