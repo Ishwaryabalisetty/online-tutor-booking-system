@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}TutorBook{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">📚 Tutor<span>Book</span></a>
+  <div class="nav-links" id="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/tutors" class="nav-link">Find Tutors</a>
+    {% if session.get('role') == 'student' %}
+      <a href="/student/dashboard" class="nav-link">Dashboard</a>
+      <a href="/logout" class="nav-link">Logout ({{ session.user_name }})</a>
+    {% elif session.get('role') == 'tutor' %}
+      <a href="/tutor/dashboard" class="nav-link">Dashboard</a>
+      <a href="/logout" class="nav-link">Logout ({{ session.user_name }})</a>
+    {% else %}
+      <a href="/login" class="nav-link">Login</a>
+      <a href="/register" class="nav-link btn-nav">Register</a>
+    {% endif %}
+  </div>
+</nav>
+
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container" style="padding-top:16px;">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            {{ '✅' if category == 'success' else '❌' }} {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<footer style="border-top:1px solid var(--border);padding:24px;text-align:center;color:var(--text3);font-size:13px;margin-top:60px;">
+  © 2024 TutorBook — Connect with the best tutors
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

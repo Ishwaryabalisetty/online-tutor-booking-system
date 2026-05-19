@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard - TutorBook{% endblock %}
+
+{% block extra_css %}
+<style>
+.dashboard-header {
+  background: linear-gradient(135deg, var(--bg2) 0%, rgba(124,58,237,0.08) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 32px 0;
+  margin-bottom: 36px;
+}
+.welcome-text { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+.welcome-sub { color: var(--text2); font-size: 15px; margin-top: 4px; }
+.booking-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg3);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  transition: background 0.15s;
+}
+.booking-row:hover { background: var(--bg4); }
+.booking-avatar {
+  width: 42px;
+  height: 42px;
+  background: var(--accent);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: white;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.booking-info { flex: 1; min-width: 0; }
+.booking-tutor { font-weight: 700; font-size: 15px; }
+.booking-meta { font-size: 13px; color: var(--text2); margin-top: 2px; }
+.booking-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HEADER -->
+<div class="dashboard-header">
+  <div class="container">
+    <div class="welcome-text">👋 Welcome, {{ session.user_name }}!</div>
+    <div class="welcome-sub">Manage your tutoring sessions from here</div>
+  </div>
+</div>
+
+<div class="container">
+  <!-- STATS -->
+  <div class="grid-4" style="margin-bottom:36px;">
+    <div class="stat-card fade-up">
+      <div class="stat-icon">📚</div>
+      <div class="stat-value" data-count="{{ total }}">{{ total }}</div>
+      <div class="stat-label">Total Bookings</div>
+    </div>
+    <div class="stat-card fade-up">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-value" data-count="{{ pending }}">{{ pending }}</div>
+      <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card fade-up">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value" data-count="{{ confirmed }}">{{ confirmed }}</div>
+      <div class="stat-label">Confirmed</div>
+    </div>
+    <div class="stat-card fade-up">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-value">{{ total - pending - confirmed }}</div>
+      <div class="stat-label">Cancelled</div>
+    </div>
+  </div>
+
+  <!-- BOOKINGS + SIDEBAR -->
+  <div style="display:grid;grid-template-columns:1fr 280px;gap:24px;align-items:start;">
+    <!-- BOOKINGS LIST -->
+    <div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div class="section-title" style="font-size:18px;">My Bookings</div>
+        <a href="/tutors" class="btn btn-primary btn-sm">+ New Booking</a>
+      </div>
+
+      {% if bookings %}
+        {% for b in bookings %}
+        <div class="booking-row fade-up">
+          <div class="booking-avatar">{{ b.tutor_name[0] }}</div>
+          <div class="booking-info">
+            <div class="booking-tutor">{{ b.tutor_name }}</div>
+            <div class="booking-meta">{{ b.subject }} · {{ b.date }} at {{ b.time }}</div>
+          </div>
+          <div class="booking-actions">
+            <span class="badge badge-{{ b.status }}">{{ b.status.title() }}</span>
+            {% if b.status == 'pending' %}
+              <a href="/booking/cancel/{{ b.id }}" class="btn btn-danger btn-sm cancel-btn">Cancel</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <div class="icon">📅</div>
+          <h3>No bookings yet</h3>
+          <p>Find a tutor and book your first session!</p>
+          <a href="/tutors" class="btn btn-primary" style="margin-top:16px;">Browse Tutors</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- SIDEBAR -->
+    <div>
+      <div class="card" style="margin-bottom:16px;">
+        <div style="font-size:15px;font-weight:700;margin-bottom:14px;">Quick Actions</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <a href="/tutors" class="btn btn-primary" style="justify-content:center;">🔍 Find Tutors</a>
+          <a href="/tutors?subject=Mathematics" class="btn btn-secondary" style="justify-content:center;">📐 Math Tutors</a>
+          <a href="/tutors?subject=Computer+Science" class="btn btn-secondary" style="justify-content:center;">💻 CS Tutors</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-size:15px;font-weight:700;margin-bottom:14px;">Your Account</div>
+        <div style="font-size:13.5px;color:var(--text2);line-height:1.8;">
+          <div>👤 {{ session.user_name }}</div>
+          <div>📧 {{ session.user_email }}</div>
+        </div>
+        <a href="/logout" class="btn btn-secondary btn-sm" style="margin-top:14px;justify-content:center;width:100%;">Logout</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
