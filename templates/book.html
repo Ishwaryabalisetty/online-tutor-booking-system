@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Book Session - {{ tutor.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.book-page {
+  max-width: 580px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+.tutor-preview {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.tutor-avatar-lg {
+  width: 60px;
+  height: 60px;
+  background: var(--accent);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+}
+.time-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+.time-slot {
+  padding: 10px;
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text2);
+  transition: all 0.15s;
+}
+.time-slot:hover, .time-slot.selected {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  color: #a78bfa;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="book-page">
+  <a href="/tutors" style="color:var(--text2);font-size:14px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:24px;">← Back to Tutors</a>
+
+  <div class="section-title" style="margin-bottom:6px;">Book a Session</div>
+  <div class="section-sub" style="margin-bottom:24px;">Fill in the details to confirm your booking</div>
+
+  <!-- TUTOR PREVIEW -->
+  <div class="tutor-preview">
+    <div class="tutor-avatar-lg">{{ tutor.name[0] }}</div>
+    <div>
+      <div style="font-size:17px;font-weight:700;">{{ tutor.name }}</div>
+      <div style="color:#a78bfa;font-size:13px;font-weight:600;">{{ tutor.subject }}</div>
+      <div style="color:var(--text2);font-size:13px;margin-top:2px;">★ {{ tutor.rating }} · ₹{{ tutor.price }}/session</div>
+    </div>
+  </div>
+
+  <!-- BOOKING FORM -->
+  <div class="card">
+    <form method="POST">
+      <div class="form-group">
+        <label class="form-label">Select Date</label>
+        <input type="date" name="date" class="form-input" required
+               min="{{ '' }}" id="date-input"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Select Time</label>
+        <div class="time-slots" id="time-slots">
+          {% for time in ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM','6:00 PM'] %}
+          <div class="time-slot" onclick="selectTime('{{ time }}', this)">{{ time }}</div>
+          {% endfor %}
+        </div>
+        <input type="hidden" name="time" id="time-input" required/>
+      </div>
+
+      <div style="background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:20px;font-size:13.5px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="color:var(--text2);">Session Fee</span>
+          <span style="font-weight:700;">₹{{ tutor.price }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:var(--text2);">Duration</span>
+          <span style="font-weight:700;">1 hour</span>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;">
+        ✅ Confirm Booking
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+// Set min date to today
+document.getElementById('date-input').min = new Date().toISOString().split('T')[0]
+
+function selectTime(time, el) {
+  document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'))
+  el.classList.add('selected')
+  document.getElementById('time-input').value = time
+}
+</script>
+{% endblock %}

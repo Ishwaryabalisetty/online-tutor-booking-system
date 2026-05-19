@@ -1,37 +1,140 @@
-<!DOCTYPE html>
-<html>
+{% extends 'base.html' %}
+{% block title %}Find Tutors - TutorBook{% endblock %}
 
-<head>
-<title>Available Tutors</title>
-</head>
+{% block extra_css %}
+<style>
+.tutor-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+.tutor-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px var(--accent-glow);
+}
+.tutor-avatar {
+  width: 52px;
+  height: 52px;
+  background: var(--accent);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 14px;
+}
+.tutor-name { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.tutor-subject {
+  display: inline-block;
+  background: var(--accent-light);
+  color: #a78bfa;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.tutor-bio { font-size: 13.5px; color: var(--text2); line-height: 1.55; margin-bottom: 16px; flex: 1; }
+.tutor-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+.tutor-price { font-size: 16px; font-weight: 700; color: var(--text); }
+.tutor-price span { font-size: 12px; font-weight: 400; color: var(--text2); }
+.search-bar {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-input-wrap {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+.search-input-wrap::before {
+  content: '🔍';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+}
+.search-input-wrap .form-input { padding-left: 36px; width: 100%; }
+.tutors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+</style>
+{% endblock %}
 
-<body>
+{% block content %}
+<div class="container page">
+  <div class="section-header">
+    <div class="section-title">Find a Tutor</div>
+    <div class="section-sub">{{ tutors|length }} tutors available for you</div>
+  </div>
 
-<h2>Available Tutors</h2>
+  <!-- SEARCH & FILTER -->
+  <form class="search-bar" id="filter-form" method="GET">
+    <div class="search-input-wrap">
+      <input type="text" name="search" id="search-input" class="form-input"
+             placeholder="Search by name, subject..." value="{{ search }}"/>
+    </div>
+    <select name="subject" id="subject-filter" class="form-input" style="width:auto;min-width:160px;">
+      <option value="">All Subjects</option>
+      {% for s in subjects %}
+        <option value="{{ s.subject }}" {{ 'selected' if subject_filter == s.subject }}>{{ s.subject }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Search</button>
+    {% if subject_filter or search %}
+      <a href="/tutors" class="btn btn-secondary">Clear</a>
+    {% endif %}
+  </form>
 
-{% for tutor in tutors %}
+  <!-- TUTORS GRID -->
+  <div class="tutors-grid">
+    {% for tutor in tutors %}
+    <div class="tutor-card fade-up">
+      <div class="tutor-avatar">{{ tutor.name[0] }}</div>
+      <div class="tutor-name">{{ tutor.name }}</div>
+      <div class="tutor-subject">{{ tutor.subject }}</div>
+      <div class="tutor-bio">{{ tutor.bio }}</div>
+      <div style="display:flex;gap:12px;margin-bottom:14px;font-size:13px;color:var(--text2);">
+        <span class="stars">★ {{ tutor.rating }}</span>
+        <span>📅 {{ tutor.experience }} exp</span>
+      </div>
+      <div class="tutor-footer">
+        <div class="tutor-price">₹{{ tutor.price }} <span>/ session</span></div>
+        {% if session.get('role') == 'student' %}
+          <a href="/book/{{ tutor.id }}" class="btn btn-primary btn-sm">Book Now</a>
+        {% else %}
+          <a href="/login" class="btn btn-secondary btn-sm">Login to Book</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 
-<form action="/book" method="POST">
+  <div id="no-results" style="display:none;" class="empty-state">
+    <div class="icon">🔍</div>
+    <h3>No tutors found</h3>
+    <p>Try a different search or filter</p>
+  </div>
 
-<input type="hidden" name="tutor" value="{{tutor.name}}">
-<input type="hidden" name="subject" value="{{tutor.subject}}">
-
-<label>Your Name</label>
-<input type="text" name="student" required>
-
-<p>
-Tutor: {{tutor.name}} |
-Subject: {{tutor.subject}}
-</p>
-
-<button type="submit">Book Tutor</button>
-
-</form>
-
-<hr>
-
-{% endfor %}
-
-</body>
-
-</html>
+  {% if not tutors %}
+  <div class="empty-state">
+    <div class="icon">😔</div>
+    <h3>No tutors found</h3>
+    <p>Try clearing the filters</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
